@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { translateAuthError } from "@/lib/auth-errors";
 import type { ICompanyRepository } from "@/domain/repositories/ICompanyRepository";
 
 interface Input {
@@ -24,24 +25,21 @@ export class CreateUserWithCompany {
 
   async execute({ name, email, password, companyName }: Input): Promise<Result> {
     try {
-      // 1. Criar usuário via Better Auth (server-side)
       const response = await auth.api.signUpEmail({
         body: { name, email, password },
         asResponse: true,
       });
 
       if (!response.ok) {
-        const err = (await response.json()) as { message?: string };
-        return { ok: false, error: err.message ?? "Erro ao criar usuário" };
+        const err = (await response.json()) as { code?: string; message?: string };
+        return { ok: false, error: translateAuthError(err, "Erro ao criar usuário") };
       }
 
       const data = (await response.json()) as { user: { id: string } };
       const userId = data.user.id;
 
-      // 2. Gerar slug da empresa
       const slug = slugify(companyName);
 
-      // 3. Criar empresa + membro em transação
       await this.companyRepo.create({ name: companyName, slug, ownerId: userId });
 
       return { ok: true };
