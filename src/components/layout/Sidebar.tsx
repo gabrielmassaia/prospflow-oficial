@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Crosshair, LogOut, Map, Tag, Target, Users } from "lucide-react";
+import { BarChart2, Crosshair, LogOut, Map, Tag, Users } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ interface AppSidebarProps {
 }
 
 const navItems = [
-  { href: "/prospeccao", label: "Prospecção", icon: Target, exact: true },
+  { href: "/prospeccao", label: "Dashboard", icon: BarChart2, exact: true },
   { href: "/prospeccao/nichos", label: "Nichos", icon: Tag, exact: false },
   { href: "/prospeccao/campanhas", label: "Campanhas", icon: Map, exact: false },
   { href: "/prospeccao/leads", label: "Leads", icon: Users, exact: false },
