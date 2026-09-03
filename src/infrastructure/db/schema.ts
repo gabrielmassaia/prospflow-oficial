@@ -1,12 +1,12 @@
 import {
-    boolean,
-    index,
-    pgEnum,
-    pgTable,
-    text,
-    timestamp,
-    uniqueIndex,
-    uuid,  
+  boolean,
+  index,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
 } from "drizzle-orm/pg-core";
 export const usersTable = pgTable("users", {
   id: text("id").primaryKey(),
@@ -89,10 +89,7 @@ export const companyMembersTable = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (t) => ({
-    companyUserUnique: uniqueIndex("company_members_company_user_unique").on(
-      t.companyId,
-      t.userId
-    ),
+    companyUserUnique: uniqueIndex("company_members_company_user_unique").on(t.companyId, t.userId),
     companyIdIdx: index("company_members_company_id_idx").on(t.companyId),
   })
 );
