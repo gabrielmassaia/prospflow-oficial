@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Crosshair, LogOut, Tag, Target } from "lucide-react";
+import { Crosshair, LogOut, Map, Tag, Target } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ interface AppSidebarProps {
 const navItems = [
   { href: "/prospeccao", label: "Prospecção", icon: Target, exact: true },
   { href: "/prospeccao/nichos", label: "Nichos", icon: Tag, exact: false },
+  { href: "/prospeccao/campanhas", label: "Campanhas", icon: Map, exact: false },
 ];
 
 function getInitials(name: string): string {
