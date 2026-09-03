@@ -17,9 +17,10 @@ function markerColor(score: number): string {
 interface CampaignMapProps {
   campaign: Campaign;
   leads: Lead[];
+  height?: number | string;
 }
 
-export default function CampaignMap({ campaign, leads }: CampaignMapProps) {
+export default function CampaignMap({ campaign, leads, height = 560 }: CampaignMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<LeafletMap | null>(null);
 
@@ -72,5 +73,5 @@ export default function CampaignMap({ campaign, leads }: CampaignMapProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <div ref={containerRef} style={{ height: 560, width: "100%", borderRadius: "0.5rem" }} />;
+  return <div ref={containerRef} style={{ height, width: "100%", borderRadius: "0.5rem" }} />;
 }

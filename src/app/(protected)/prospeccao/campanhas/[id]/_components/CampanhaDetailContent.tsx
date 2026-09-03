@@ -135,8 +135,8 @@ export function CampanhaDetailContent({ initialCampaign, initialNiche, initialLe
       </div>
 
       {leads.length > 0 ? (
-        <div className="overflow-hidden rounded-xl border border-border/60 shadow-sm">
-          <CampaignMap campaign={campaign} leads={leads} />
+        <div className="flex min-h-[560px] flex-1 overflow-hidden rounded-xl border border-border/60 shadow-sm">
+          <CampaignMap campaign={campaign} leads={leads} height="100%" />
         </div>
       ) : (
         <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-border py-20 text-sm text-muted-foreground">
