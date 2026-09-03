@@ -38,8 +38,9 @@ export default function CampaignMap({ campaign, leads }: CampaignMapProps) {
     const map = L.map(containerRef.current).setView(center, 13);
     mapRef.current = map;
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-      attribution: '&copy; <a href="https://carto.com/">CartoDB</a>',
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
     }).addTo(map);
 
     L.marker(center).addTo(map).bindPopup(`Centro: ${campaign.city}, ${campaign.state}`);
