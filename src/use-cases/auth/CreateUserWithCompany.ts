@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth";
 import { translateAuthError } from "@/lib/auth-errors";
 import type { ICompanyRepository } from "@/domain/repositories/ICompanyRepository";
+import type { IFunnelStageRepository } from "@/domain/repositories/IFunnelStageRepository";
+import { SeedFunnelStages } from "@/use-cases/funil/SeedFunnelStages";
 
 interface Input {
   name: string;
@@ -21,7 +23,10 @@ function slugify(s: string): string {
 }
 
 export class CreateUserWithCompany {
-  constructor(private companyRepo: ICompanyRepository) {}
+  constructor(
+    private companyRepo: ICompanyRepository,
+    private stageRepo: IFunnelStageRepository
+  ) {}
 
   async execute({ name, email, password, companyName }: Input): Promise<Result> {
     try {
@@ -40,7 +45,9 @@ export class CreateUserWithCompany {
 
       const slug = slugify(companyName);
 
-      await this.companyRepo.create({ name: companyName, slug, ownerId: userId });
+      const company = await this.companyRepo.create({ name: companyName, slug, ownerId: userId });
+
+      await new SeedFunnelStages(this.stageRepo).execute({ companyId: company.id });
 
       return { ok: true };
     } catch (e: unknown) {

@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { db } from "@/infrastructure/db";
 import { DrizzleCompanyRepository } from "@/infrastructure/repositories/DrizzleCompanyRepository";
+import { DrizzleFunnelStageRepository } from "@/infrastructure/repositories/DrizzleFunnelStageRepository";
 import { CreateUserWithCompany } from "@/use-cases/auth/CreateUserWithCompany";
 
 const signupSchema = z.object({
@@ -26,7 +27,8 @@ export async function signupAction(formData: {
   }
 
   const companyRepo = new DrizzleCompanyRepository(db);
-  const useCase = new CreateUserWithCompany(companyRepo);
+  const stageRepo = new DrizzleFunnelStageRepository(db);
+  const useCase = new CreateUserWithCompany(companyRepo, stageRepo);
 
   return useCase.execute(parsed.data);
 }
