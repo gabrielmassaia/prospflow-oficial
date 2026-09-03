@@ -20,13 +20,22 @@ export async function runCampaignAction(campaignId: string) {
 
   after(async () => {
     const campaignRepo = new DrizzleCampaignRepository(db);
-    const nicheRepo = new DrizzleNicheRepository(db);
-    const leadRepo = new DrizzleLeadRepository(db);
-    const geoService = new OverpassGeoService();
-    const aiService = new CloudflareAIService();
+    try {
+      const nicheRepo = new DrizzleNicheRepository(db);
+      const leadRepo = new DrizzleLeadRepository(db);
+      const geoService = new OverpassGeoService();
+      const aiService = new CloudflareAIService();
 
-    const useCase = new RunCampaign(campaignRepo, nicheRepo, leadRepo, geoService, aiService);
-    await useCase.execute({ campaignId, companyId });
+      const useCase = new RunCampaign(campaignRepo, nicheRepo, leadRepo, geoService, aiService);
+      await useCase.execute({ campaignId, companyId });
+    } catch (e) {
+      // rede de segurança: RunCampaign já trata as falhas que conhece
+      // internamente, mas qualquer coisa inesperada que escape daqui (ex: o
+      // próprio construtor de uma dependência lançando) não pode deixar a
+      // campanha presa em "running" para sempre, sem nenhum jeito de tentar de novo
+      console.error("[runCampaignAction] erro não tratado no after()", e);
+      await campaignRepo.updateStatus(campaignId, companyId, "failed");
+    }
   });
 
   return { ok: true as const, queued: true };

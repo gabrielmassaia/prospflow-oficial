@@ -7,10 +7,7 @@ interface CloudflareResponse {
 }
 
 export class CloudflareAIService implements IAIService {
-  private readonly endpoint: string;
-  private readonly token: string;
-
-  constructor() {
+  async complete(systemPrompt: string, userPrompt: string): Promise<string> {
     const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
     const model = process.env.CLOUDFLARE_AI_MODEL ?? "@cf/meta/llama-3.1-70b-instruct";
     const token = process.env.CLOUDFLARE_AI_TOKEN;
@@ -19,15 +16,12 @@ export class CloudflareAIService implements IAIService {
       throw new Error("CLOUDFLARE_ACCOUNT_ID e CLOUDFLARE_AI_TOKEN são obrigatórios");
     }
 
-    this.endpoint = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`;
-    this.token = token;
-  }
+    const endpoint = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`;
 
-  async complete(systemPrompt: string, userPrompt: string): Promise<string> {
-    const res = await fetch(this.endpoint, {
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${this.token}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
