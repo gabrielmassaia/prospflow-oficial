@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Map, Tag, TrendingUp, Users } from "lucide-react";
 
@@ -9,6 +10,10 @@ import { DrizzleCampaignRepository } from "@/infrastructure/repositories/Drizzle
 import { DrizzleLeadRepository } from "@/infrastructure/repositories/DrizzleLeadRepository";
 import { CAMPAIGN_STATUS_CLASSES, CAMPAIGN_STATUS_LABEL } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: "Dashboard" };
+}
 
 export default async function DashboardPage() {
   const user = await requireUser();
