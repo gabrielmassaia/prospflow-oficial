@@ -4,6 +4,7 @@ import {
   doublePrecision,
   index,
   integer,
+  numeric,
   pgEnum,
   pgTable,
   real,
@@ -218,5 +219,93 @@ export const prospectingLeadsTable = pgTable(
     campaignIdIdx: index("leads_campaign_id_idx").on(t.campaignId),
     statusIdx: index("leads_status_idx").on(t.status),
     scoreIdx: index("leads_score_idx").on(t.score),
+  })
+);
+
+// ── Funil Comercial — Fase 3 ─────────────────────────────────────────────────
+
+export const stageKindEnum = pgEnum("stage_kind", ["normal", "won", "lost", "triage"]);
+
+export const funnelStagesTable = pgTable(
+  "funnel_stages",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companiesTable.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    position: integer("position").notNull(),
+    colorHex: varchar("color_hex", { length: 7 }).notNull().default("#6366f1"),
+    kind: stageKindEnum("kind").notNull().default("normal"),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()),
+  },
+  (t) => ({
+    companyPositionUnique: uniqueIndex("funnel_stages_company_position_unique").on(
+      t.companyId,
+      t.position
+    ),
+  })
+);
+
+export const crmLeadOriginEnum = pgEnum("crm_lead_origin", ["manual", "prospecting"]);
+
+export const crmLeadsTable = pgTable(
+  "crm_leads",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companiesTable.id, { onDelete: "cascade" }),
+    prospectingLeadId: uuid("prospecting_lead_id").references(
+      () => prospectingLeadsTable.id,
+      { onDelete: "set null" }
+    ),
+    stageId: uuid("stage_id")
+      .notNull()
+      .references(() => funnelStagesTable.id, { onDelete: "restrict" }),
+    name: text("name").notNull(),
+    phone: text("phone"),
+    email: text("email"),
+    niche: text("niche"),
+    subniche: text("subniche"),
+    origin: crmLeadOriginEnum("origin").notNull().default("manual"),
+    value: numeric("value", { precision: 10, scale: 2 }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()),
+  },
+  (t) => ({
+    companyIdIdx: index("crm_leads_company_id_idx").on(t.companyId),
+    stageIdIdx: index("crm_leads_stage_id_idx").on(t.stageId),
+  })
+);
+
+export const leadActivitiesTable = pgTable(
+  "lead_activities",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companiesTable.id, { onDelete: "cascade" }),
+    leadId: uuid("lead_id")
+      .notNull()
+      .references(() => crmLeadsTable.id, { onDelete: "cascade" }),
+    fromStageId: uuid("from_stage_id").references(() => funnelStagesTable.id, {
+      onDelete: "set null",
+    }),
+    toStageId: uuid("to_stage_id").references(() => funnelStagesTable.id, {
+      onDelete: "set null",
+    }),
+    description: text("description").notNull(),
+    createdBy: text("created_by")
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    leadIdIdx: index("lead_activities_lead_id_idx").on(t.leadId),
+    createdAtIdx: index("lead_activities_created_at_idx").on(t.createdAt),
   })
 );

@@ -1,4 +1,5 @@
 import type { CampaignStatus } from "@/domain/repositories/ICampaignRepository";
+import type { StageKind } from "@/domain/repositories/IFunnelStageRepository";
 import type { LeadStatus } from "@/domain/repositories/ILeadRepository";
 
 // ── Lead status ─────────────────────────────────────────────────────────────
@@ -54,3 +55,17 @@ export function scoreBg(score: number): string {
   if (score >= 40) return "bg-amber-50 text-amber-700";
   return "bg-slate-50 text-slate-600";
 }
+
+// ── CRM / Funil ──────────────────────────────────────────────────────────────
+
+export function formatBRL(value: number | null | undefined): string {
+  if (value == null) return "—";
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+}
+
+export const STAGE_KIND_BORDER_CLASSES: Record<StageKind, string> = {
+  normal: "border-slate-200",
+  won: "border-emerald-300",
+  lost: "border-red-300",
+  triage: "border-slate-200",
+};
