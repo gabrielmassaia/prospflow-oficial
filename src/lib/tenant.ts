@@ -27,3 +27,10 @@ export async function requireCompany(userId: string) {
 
   return { companyId: company.id, company };
 }
+
+export async function redirectIfAuthenticated(destination = "/prospeccao") {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (session?.user) {
+    redirect(destination);
+  }
+}
