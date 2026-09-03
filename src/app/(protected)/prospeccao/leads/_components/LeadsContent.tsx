@@ -2,11 +2,12 @@
 
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
-import { Camera, Globe, List, Loader2, Map, MessageCircle, Phone, Sparkles, Star } from "lucide-react";
+import { Camera, Globe, Kanban, List, Loader2, Map, MessageCircle, Phone, Sparkles, Star } from "lucide-react";
 import { toast } from "sonner";
 
 import type { Campaign } from "@/domain/repositories/ICampaignRepository";
 import type { Lead, LeadStatus } from "@/domain/repositories/ILeadRepository";
+import { convertProspectingLeadAction } from "@/app/actions/leads/convert-prospecting-lead";
 import { generateDiagnosisAction } from "@/app/actions/leads/generate-diagnosis";
 import { generateMessageAction } from "@/app/actions/leads/generate-message";
 import { updateLeadStatusAction } from "@/app/actions/leads/update-lead-status";
@@ -52,11 +53,19 @@ function Signal({ active, icon: Icon, label }: { active: boolean; icon: React.El
 interface LeadsContentProps {
   initialLeads: Lead[];
   initialCampaigns: Campaign[];
+  initialConvertedProspectingLeadIds?: string[];
 }
 
-export function LeadsContent({ initialLeads, initialCampaigns }: LeadsContentProps) {
+export function LeadsContent({
+  initialLeads,
+  initialCampaigns,
+  initialConvertedProspectingLeadIds = [],
+}: LeadsContentProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [campaigns] = useState<Campaign[]>(initialCampaigns);
+  const [convertedIds, setConvertedIds] = useState<Set<string>>(
+    new Set(initialConvertedProspectingLeadIds)
+  );
   const [view, setView] = useState<"list" | "map">("list");
   const [campaignId, setCampaignId] = useState("all");
   const [status, setStatus] = useState("all");
@@ -67,6 +76,7 @@ export function LeadsContent({ initialLeads, initialCampaigns }: LeadsContentPro
   const [generatingAI, setGeneratingAI] = useState(false);
   const [generatingMsg, setGeneratingMsg] = useState(false);
   const [generatedMessage, setGeneratedMessage] = useState("");
+  const [converting, setConverting] = useState(false);
 
   const filtered = useMemo(
     () =>
@@ -111,6 +121,21 @@ export function LeadsContent({ initialLeads, initialCampaigns }: LeadsContentPro
       return;
     }
     setGeneratedMessage(result.message);
+  }
+
+  async function handleConvert() {
+    if (!selected) return;
+    setConverting(true);
+    const result = await convertProspectingLeadAction(selected.id);
+    setConverting(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    setConvertedIds((prev) => new Set(prev).add(selected.id));
+    toast.success("Lead convertido para o CRM", {
+      action: { label: "Ver no funil", onClick: () => window.location.assign("/funil") },
+    });
   }
 
   function openWhatsApp() {
@@ -378,6 +403,25 @@ export function LeadsContent({ initialLeads, initialCampaigns }: LeadsContentPro
                       <MessageCircle className="mr-1.5 h-4 w-4" /> Abrir WhatsApp
                     </Button>
                   )}
+                </div>
+
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Funil comercial
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    disabled={converting || convertedIds.has(selected.id)}
+                    onClick={handleConvert}
+                  >
+                    {converting ? (
+                      <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Kanban className="mr-1.5 h-4 w-4" />
+                    )}
+                    {convertedIds.has(selected.id) ? "Já convertido" : "Converter para CRM"}
+                  </Button>
                 </div>
 
                 <div>

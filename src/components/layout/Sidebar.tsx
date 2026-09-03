@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BarChart2, Crosshair, LogOut, Map, Tag, Users } from "lucide-react";
+import { BarChart2, Crosshair, Kanban, LogOut, Map, Tag, Users } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ const navItems = [
   { href: "/prospeccao/nichos", label: "Nichos", icon: Tag, exact: false },
   { href: "/prospeccao/campanhas", label: "Campanhas", icon: Map, exact: false },
   { href: "/prospeccao/leads", label: "Leads", icon: Users, exact: false },
+  { href: "/funil", label: "Funil", icon: Kanban, exact: false },
 ];
 
 function getInitials(name: string): string {
